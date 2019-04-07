@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  dhcpd:
+    image: networkboot/dhcpd
+    container_name: dhcpd
+    network_mode: host
+    volumes:
+      - .:/data
+  atftpd:
+    build: .docker/atftpd
+    container_name: atftpd
+    network_mode: host
+    privileged: true
+    volumes:
+      - ./nfs/client1/boot:/srv/tftp
+    ports:
+      - "69:69/udp"
+  nfs:
+    image: erichough/nfs-server
+    network_mode: host
+    container_name: nfs
+    cap_add:
+      - SYS_ADMIN
+      - SYS_MODULE
+    volumes:
+      - /lib/modules:/lib/modules:ro
+      - ./exports.txt:/etc/exports:ro
+      - ./nfs:/nfs
+    ports:
+      - 2049:2049
+    security_opt:
+      - apparmor=erichough-nfs      
+  bind:
+    image: resystit/bind9
+    container_name: bind
+    network_mode: host
+    volumes:
+      - ./named.conf:/etc/bind/named.conf
+    ports:
+      - 53:53/udp

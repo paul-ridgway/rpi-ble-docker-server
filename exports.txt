@@ -1,0 +1,1 @@
+/nfs/client1 *(rw,sync,no_subtree_check,no_root_squash)
